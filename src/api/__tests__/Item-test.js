@@ -39,45 +39,27 @@ describe('api/Item', () => {
             expect(item.errorCallback).not.toHaveBeenCalled();
         });
 
-        test('should not do anything if no response', () => {
+        test('should call error callback even when no response', () => {
             item.errorCallback = jest.fn();
             item.errorHandler('foo');
-            expect(item.errorCallback).not.toHaveBeenCalled();
+            expect(item.errorCallback).toHaveBeenCalled();
         });
 
-        test('should call error callback', () => {
-            const thenMock = jest.fn();
-            const json = () => ({
-                then: thenMock
-            });
-            item.errorHandler({ response: { json } });
-            expect(thenMock).toHaveBeenCalledWith(item.errorCallback);
-        });
-
-        test('should throw error when getting error event', () => {
+        test('should call error callback with response data', () => {
             item.errorCallback = jest.fn();
-            expect(item.errorHandler.bind(item, new Error())).toThrow(Error);
+            item.errorHandler({ response: { data: 'foo' } });
+            expect(item.errorCallback).toHaveBeenCalledWith('foo');
         });
     });
 
     describe('merge()', () => {
-        test('should not do anything if destroyed', () => {
-            item.isDestroyed = jest.fn().mockReturnValueOnce(true);
-            item.errorCallback = jest.fn();
-            item.merge('foo', 'bar', 'baz');
-            expect(item.errorCallback).not.toHaveBeenCalled();
-        });
         test('should merge new value', () => {
             cache.set('key', {
                 foo: 'foo'
             });
             item.getCache = jest.fn().mockReturnValueOnce(cache);
-            item.successCallback = jest.fn();
-            item.merge('key', 'foo', 'bar');
-            expect(item.successCallback).toHaveBeenCalled();
-            expect(item.successCallback).toHaveBeenCalledWith({
-                foo: 'bar'
-            });
+            const result = item.merge('key', 'foo', 'bar');
+            expect(result.foo).toEqual('bar');
         });
     });
 
@@ -93,10 +75,10 @@ describe('api/Item', () => {
             cache.set('key', {
                 foo: 'foo'
             });
+            item.successCallback = jest.fn();
             item.getCache = () => ({
                 unsetAll: unsetAllMock
             });
-            item.successCallback = jest.fn();
             item.postDeleteCleanup();
             expect(item.successCallback).toHaveBeenCalled();
             expect(unsetAllMock).toHaveBeenCalledWith('search_');
@@ -112,8 +94,11 @@ describe('api/Item', () => {
             });
             item.getCacheKey = jest.fn().mockReturnValueOnce('key');
             item.merge = jest.fn();
+            item.successCallback = jest.fn();
             item.renameSuccessHandler({
-                name: 'name'
+                data: {
+                    name: 'name'
+                }
             });
             expect(unsetAllMock).toHaveBeenCalledWith('search_');
             expect(item.getCacheKey).toHaveBeenCalledWith('id');
@@ -126,8 +111,11 @@ describe('api/Item', () => {
             item.id = 'id';
             item.getCacheKey = jest.fn().mockReturnValueOnce('key');
             item.merge = jest.fn();
+            item.successCallback = jest.fn();
             item.shareSuccessHandler({
-                shared_link: 'link'
+                data: {
+                    shared_link: 'link'
+                }
             });
             expect(item.getCacheKey).toHaveBeenCalledWith('id');
             expect(item.merge).toHaveBeenCalledWith('key', 'shared_link', 'link');
@@ -472,6 +460,7 @@ describe('api/Item', () => {
             item.getCacheKey = jest.fn().mockReturnValueOnce('child');
             item.getParentCacheKey = jest.fn().mockReturnValueOnce('parent');
             item.merge = jest.fn();
+            item.successCallback = jest.fn();
             item.deleteSuccessHandler();
 
             expect(cache.get('parent')).toEqual({

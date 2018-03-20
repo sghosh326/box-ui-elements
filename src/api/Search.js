@@ -12,7 +12,7 @@ import flatten from '../util/flatten';
 import sort from '../util/sorter';
 import { getFieldsAsString } from '../util/fields';
 import { CACHE_PREFIX_SEARCH, X_REP_HINTS } from '../constants';
-import getBadItemError from '../util/error';
+import { getBadItemError } from '../util/error';
 import type Cache from '../util/Cache';
 import type {
     BoxItemCollection,
@@ -110,7 +110,7 @@ class Search extends Base {
      * @return {string} base url for files
      */
     getUrl(): string {
-        return `${this.getBaseUrl()}/search`;
+        return `${this.getBaseApiUrl()}/search`;
     }
 
     /**
@@ -172,12 +172,12 @@ class Search extends Base {
      * @param {Object} response
      * @return {void}
      */
-    searchSuccessHandler = (response: BoxItemCollection): void => {
+    searchSuccessHandler = ({ data }: { data: BoxItemCollection }): void => {
         if (this.isDestroyed()) {
             return;
         }
 
-        const { entries, total_count, limit, offset }: BoxItemCollection = response;
+        const { entries, total_count, limit, offset }: BoxItemCollection = data;
         if (
             !Array.isArray(entries) ||
             typeof total_count !== 'number' ||
@@ -201,7 +201,7 @@ class Search extends Base {
         const isLoaded: boolean = offset + limit >= total_count;
 
         this.getCache().set(this.key, {
-            item_collection: Object.assign({}, response, {
+            item_collection: Object.assign({}, data, {
                 isLoaded,
                 entries: this.itemCache
             })

@@ -12,7 +12,8 @@ import getFileSize from 'box-react-ui/lib/utils/getFileSize';
 import messages from '../messages';
 import SidebarSection from './SidebarSection';
 import SidebarContent from './SidebarContent';
-import SidebarSkills from './SidebarSkills';
+import SidebarSkills from './Skills/SidebarSkills';
+import SidebarNotices from './SidebarNotices';
 import type { BoxItem } from '../../flowTypes';
 import './DetailsSidebar.scss';
 
@@ -21,6 +22,7 @@ type Props = {
     getPreviewer: Function,
     hasTitle: boolean,
     hasSkills: boolean,
+    hasNotices: boolean,
     hasProperties: boolean,
     hasMetadata: boolean,
     hasAccessStats: boolean,
@@ -28,6 +30,7 @@ type Props = {
     rootElement: HTMLElement,
     appElement: HTMLElement,
     onInteraction: Function,
+    onDescriptionChange: Function,
     intl: any
 };
 
@@ -38,20 +41,25 @@ const DetailsSidebar = ({
     hasTitle,
     hasSkills,
     hasProperties,
+    hasNotices,
     hasMetadata,
     hasAccessStats,
     hasClassification,
     rootElement,
     appElement,
     onInteraction,
+    onDescriptionChange,
     intl
 }: Props) => {
-    if (!hasSkills && !hasProperties && !hasMetadata && !hasAccessStats && !hasClassification) {
+    if (!hasSkills && !hasProperties && !hasMetadata && !hasAccessStats && !hasClassification && !hasNotices) {
         return null;
     }
 
+    const onDescriptionChangeEditable = getProp(file, 'permissions.can_rename') ? onDescriptionChange : undefined;
+
     return (
         <SidebarContent hasTitle={hasTitle} title={<FormattedMessage {...messages.sidebarDetailsTitle} />}>
+            {hasNotices && <SidebarNotices file={file} />}
             {hasSkills && (
                 <SidebarSkills
                     metadata={file.metadata}
@@ -70,6 +78,8 @@ const DetailsSidebar = ({
                         owner={getProp(file, 'owned_by.name')}
                         size={getFileSize(file.size, intl.locale)}
                         uploader={getProp(file, 'created_by.name')}
+                        onDescriptionChange={onDescriptionChangeEditable}
+                        descriptionTextareaProps={{ maxLength: '255' }}
                     />
                 </SidebarSection>
             )}

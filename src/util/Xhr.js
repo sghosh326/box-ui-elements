@@ -150,9 +150,7 @@ class Xhr {
         headers?: StringMap
     }): Promise<StringAnyMap> {
         return this.getHeaders(id, headers).then((hdrs) =>
-            this.axios
-                .get(url, { params, headers: hdrs, parsedUrl: this.getParsedUrl(url) })
-                .then((response) => response.data)
+            this.axios.get(url, { params, headers: hdrs, parsedUrl: this.getParsedUrl(url) })
         );
     }
 
@@ -186,7 +184,7 @@ class Xhr {
                 method,
                 parsedUrl: this.getParsedUrl(url),
                 headers: hdrs
-            }).then((response) => response.data)
+            })
         );
     }
 
@@ -272,9 +270,7 @@ class Xhr {
                     headers: hdrs
                 })
                     .then(successHandler)
-                    .catch((error: any) => {
-                        errorHandler(error.response.data);
-                    })
+                    .catch(errorHandler)
             )
             .catch(errorHandler);
     }

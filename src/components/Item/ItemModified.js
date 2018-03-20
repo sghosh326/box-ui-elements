@@ -1,5 +1,5 @@
 import React from 'react';
-import { injectIntl } from 'react-intl';
+import { injectIntl, FormattedMessage } from 'react-intl';
 import messages from '../messages';
 import Datefield from '../Date';
 import { VIEW_RECENTS } from '../../constants';
@@ -30,11 +30,16 @@ const ItemModified = ({ view, item, intl }: Props) => {
                 : namePos !== -1 && tsPos === -1
                     ? description.substring(namePos).trim()
                     : modified_by ? modified_by.name : '';
-    const byLabel = intl.formatMessage(messages.by);
 
     return (
         <span className='be-item-modified'>
-            <Datefield date={date} />&nbsp;{byLabel}&nbsp;{modifiedByName}
+            <FormattedMessage
+                {...messages.nameDate}
+                values={{
+                    date: <Datefield date={date} />,
+                    name: modifiedByName
+                }}
+            />
         </span>
     );
 };

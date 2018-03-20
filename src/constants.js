@@ -9,6 +9,7 @@ import Browser from './util/Browser';
 /* ----------------------- Size ---------------------------- */
 export const SIZE_SMALL: 'small' = 'small';
 export const SIZE_LARGE: 'large' = 'large';
+export const SIZE_MEDIUM: 'medium' = 'medium';
 
 /* ----------------------- Views ---------------------------- */
 export const VIEW_FOLDER: 'folder' = 'folder';
@@ -81,6 +82,7 @@ export const FIELD_SHA1 = 'sha1';
 export const FIELD_WATERMARK_INFO = 'watermark_info';
 export const FIELD_AUTHENTICATED_DOWNLOAD_URL = 'authenticated_download_url';
 export const FIELD_FILE_VERSION = 'file_version';
+export const FIELD_IS_DOWNLOAD_AVAILABLE = 'is_download_available';
 export const METADATA_SKILLS = 'metadata.global.boxSkillsCards';
 
 /* ----------------------- Permissions --------------------------- */
@@ -97,7 +99,7 @@ export const DELIMITER_SLASH: 'slash' = 'slash';
 export const DELIMITER_CARET: 'caret' = 'caret';
 
 /* ---------------------- Defaults -------------------------- */
-export const DEFAULT_PREVIEW_VERSION = '1.29.0';
+export const DEFAULT_PREVIEW_VERSION = '1.34.0';
 export const DEFAULT_PREVIEW_LOCALE = 'en-US';
 export const DEFAULT_PATH_STATIC = 'platform/elements';
 export const DEFAULT_PATH_STATIC_PREVIEW = 'platform/preview';
@@ -129,7 +131,8 @@ export const STATUS_ERROR: 'error' = 'error';
 export const CLASS_MODAL_CONTENT = 'be-modal-dialog-content';
 export const CLASS_MODAL_CONTENT_FULL_BLEED = 'be-modal-dialog-content-full-bleed';
 export const CLASS_MODAL_OVERLAY = 'be-modal-dialog-overlay';
-export const CLASS_IS_COMPACT = 'be-is-small';
+export const CLASS_IS_SMALL = 'be-is-small';
+export const CLASS_IS_MEDIUM = 'be-is-medium';
 export const CLASS_IS_TOUCH = 'be-is-touch';
 export const CLASS_MODAL = 'be-modal';
 

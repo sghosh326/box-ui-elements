@@ -48,7 +48,8 @@ import {
     SKILL_KEYWORD,
     SKILL_TIMELINE,
     SKILL_TRANSCRIPT,
-    SKILL_KEYVALUE
+    SKILL_KEYVALUE,
+    SIZE_MEDIUM
 } from './constants';
 
 export type Method = 'DELETE' | 'GET' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT';
@@ -56,6 +57,7 @@ export type Token = null | typeof undefined | string | Function;
 export type ClassComponent<P, S> = Class<React$Component<P, S>>;
 export type StringMap = { [string]: string };
 export type StringAnyMap = { [string]: any };
+export type StringBooleanMap = { [string]: boolean };
 export type ItemAPI = FolderAPI | FileAPI | WebLinkAPI;
 export type Access = typeof ACCESS_COLLAB | typeof ACCESS_COMPANY | typeof ACCESS_OPEN;
 export type DefaultView = typeof DEFAULT_VIEW_RECENTS | typeof DEFAULT_VIEW_FILES;
@@ -78,7 +80,7 @@ export type UploadStatus =
     | typeof STATUS_COMPLETE
     | typeof STATUS_ERROR;
 export type Delimiter = typeof DELIMITER_SLASH | typeof DELIMITER_CARET;
-export type Size = typeof SIZE_SMALL | typeof SIZE_LARGE;
+export type Size = typeof SIZE_SMALL | typeof SIZE_LARGE | typeof SIZE_MEDIUM;
 
 export type SharedLink = {
     url: string,
@@ -124,7 +126,7 @@ export type SkillCardEntry = {
     text?: string,
     label?: string,
     image_url?: string,
-    appears?: SkillCardEntryTimeSlice[]
+    appears?: Array<SkillCardEntryTimeSlice>
 };
 
 export type SkillCard = {
@@ -137,7 +139,7 @@ export type SkillCard = {
 };
 
 export type SkillCards = {
-    cards: SkillCard[]
+    cards: Array<SkillCard>
 };
 
 export type MetadataTemplate = {
@@ -146,6 +148,10 @@ export type MetadataTemplate = {
 
 export type MetadataType = {
     global?: MetadataTemplate
+};
+
+export type BoxItemVersion = {
+    id?: string
 };
 
 export type BoxItem = {
@@ -172,7 +178,9 @@ export type BoxItem = {
     modified_by?: User,
     created_by?: User,
     selected?: boolean,
-    metadata?: MetadataType
+    metadata?: MetadataType,
+    file_version?: BoxItemVersion,
+    is_download_available: boolean
 };
 
 export type BoxItemCollection = {
@@ -208,7 +216,8 @@ export type FlattenedBoxItem = {
     modified_by?: User,
     created_by?: User,
     selected?: boolean,
-    metadata?: MetadataType
+    metadata?: MetadataType,
+    file_version?: BoxItemVersion
 };
 
 export type FlattenedBoxItemCollection = {

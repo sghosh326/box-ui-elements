@@ -2,7 +2,6 @@ const path = require('path');
 const packageJSON = require('../package.json');
 const TranslationsPlugin = require('./TranslationsPlugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const webpack = require('webpack');
@@ -15,6 +14,7 @@ const noReactSuffix = '.no.react';
 const isRelease = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV === 'dev';
 const language = process.env.LANGUAGE;
+const react = process.env.REACT === 'true';
 const outputDir = process.env.OUTPUT;
 const locale = language.substr(0, language.indexOf('-'));
 const version = isRelease ? packageJSON.version : 'dev';
@@ -108,7 +108,7 @@ function getConfig(isReactExternalized) {
     };
 
     if (isDev) {
-        config.devtool = 'inline-source-map';
+        config.devtool = 'source-map';
         config.plugins.push(new TranslationsPlugin());
         config.plugins.push(
             new CircularDependencyPlugin({
@@ -118,29 +118,16 @@ function getConfig(isReactExternalized) {
         );
     }
 
-    if (isRelease) {
+    if (isRelease && language === 'en-US') {
         config.plugins.push(
-            new UglifyJsPlugin({
-                uglifyOptions: {
-                    ecma: 5,
-                    compress: {
-                        // @NOTE: reduce_vars: true breaks the code
-                        reduce_vars: false
-                    }
-                }
+            new BundleAnalyzerPlugin({
+                analyzerMode: 'static',
+                openAnalyzer: false,
+                reportFilename: path.resolve(`reports/webpack-stats${isReactExternalized ? '' : '-react'}.html`),
+                generateStatsFile: true,
+                statsFilename: path.resolve(`reports/webpack-stats${isReactExternalized ? '' : '-react'}.json`)
             })
         );
-        if (language === 'en-US') {
-            config.plugins.push(
-                new BundleAnalyzerPlugin({
-                    analyzerMode: 'static',
-                    openAnalyzer: false,
-                    reportFilename: path.resolve(`reports/webpack-stats${isReactExternalized ? '' : '-react'}.html`),
-                    generateStatsFile: true,
-                    statsFilename: path.resolve(`reports/webpack-stats${isReactExternalized ? '' : '-react'}.json`)
-                })
-            );
-        }
     }
 
     if (isReactExternalized) {
@@ -153,4 +140,4 @@ function getConfig(isReactExternalized) {
     return config;
 }
 
-module.exports = [getConfig(true), getConfig(false)];
+module.exports = isDev ? [getConfig(true), getConfig(false)] : getConfig(!react);

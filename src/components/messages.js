@@ -118,10 +118,10 @@ const messages: { [string]: IntlDESCriptor } = defineMessages({
         description: 'Label for in action.',
         defaultMessage: 'In'
     },
-    by: {
-        id: 'be.by',
-        description: 'Label for by in modified column.',
-        defaultMessage: 'by'
+    print: {
+        id: 'be.print',
+        description: 'Label for print action',
+        defaultMessage: 'Print'
     },
     selected: {
         id: 'be.selected',
@@ -133,10 +133,25 @@ const messages: { [string]: IntlDESCriptor } = defineMessages({
         description: 'Indicator on the footer that max items have been selected.',
         defaultMessage: 'max'
     },
+    nameDate: {
+        id: 'be.nameDate',
+        description: 'Text for modified or interacted date with user.',
+        defaultMessage: '{date} by {name}'
+    },
     modified: {
         id: 'be.itemModified',
         description: 'Label for item modified date.',
         defaultMessage: 'Modified'
+    },
+    modifiedDateBy: {
+        id: 'be.modifiedDateBy',
+        description: 'Text for modified date with user with modified prefix.',
+        defaultMessage: 'Modified {date} by {name}'
+    },
+    modifiedDate: {
+        id: 'be.modifiedDate',
+        description: 'Text for modified date with modified prefix.',
+        defaultMessage: 'Modified {date}'
     },
     created: {
         id: 'be.itemCreated',
@@ -157,6 +172,11 @@ const messages: { [string]: IntlDESCriptor } = defineMessages({
         id: 'be.itemInteracted',
         description: 'Label for item last accessed date.',
         defaultMessage: 'Last Accessed'
+    },
+    interactedDate: {
+        id: 'be.interactedDate',
+        description: 'Text for last accessed date with last access prefix.',
+        defaultMessage: 'Last accessed on {date}'
     },
     name: {
         id: 'be.itemName',

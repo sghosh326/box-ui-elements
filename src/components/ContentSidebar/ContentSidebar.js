@@ -33,6 +33,7 @@ type Props = {
     hasSkills: boolean,
     hasProperties: boolean,
     hasMetadata: boolean,
+    hasNotices: boolean,
     hasAccessStats: boolean,
     hasClassification: boolean,
     hasActivityFeed: boolean,
@@ -68,6 +69,7 @@ class ContentSidebar extends PureComponent<Props, State> {
         hasSkills: false,
         hasProperties: false,
         hasMetadata: false,
+        hasNotices: false,
         hasAccessStats: false,
         hasClassification: false,
         hasActivityFeed: false,
@@ -171,8 +173,8 @@ class ContentSidebar extends PureComponent<Props, State> {
      * Determines if we should bother fetching or rendering
      *
      * @private
-     * @param {string} id file id
-     * @param {Boolean|void} [forceFetch] To void cache
+     * @param {string} id - file id
+     * @param {Boolean|void} [forceFetch] - To void cache
      * @return {Boolean} true if we should fetch or render
      */
     shouldFetchOrRender(): boolean {
@@ -180,12 +182,21 @@ class ContentSidebar extends PureComponent<Props, State> {
             hasSkills,
             hasProperties,
             hasMetadata,
+            hasNotices,
             hasAccessStats,
             hasClassification,
             hasActivityFeed
         }: Props = this.props;
 
-        return hasSkills || hasProperties || hasMetadata || hasAccessStats || hasClassification || hasActivityFeed;
+        return (
+            hasSkills ||
+            hasProperties ||
+            hasMetadata ||
+            hasAccessStats ||
+            hasClassification ||
+            hasActivityFeed ||
+            hasNotices
+        );
     }
 
     /**
@@ -202,10 +213,64 @@ class ContentSidebar extends PureComponent<Props, State> {
     };
 
     /**
+     * Function to update file description
+     *
+     * @private
+     * @param {string} newDescription - New file description
+     * @return {void}
+     */
+    onDescriptionChange = (newDescription: string): void => {
+        const { file } = this.state;
+        if (!file) {
+            return;
+        }
+
+        const { description, id } = file;
+        if (newDescription === description || !id) {
+            return;
+        }
+
+        this.api
+            .getFileAPI()
+            .setFileDescription(
+                file,
+                newDescription,
+                this.setFileDescriptionSuccessCallback,
+                this.setFileDescriptionFailCallback
+            );
+    };
+
+    /**
+     * File update description callback
+     *
+     * @private
+     * @param {BoxItem} file - Updated file object
+     * @return {void}
+     */
+    setFileDescriptionSuccessCallback = (file: BoxItem): void => {
+        this.onInteraction({ target: 'description-change' });
+        this.setState({ file });
+    };
+
+    /**
+     * Handles a failed file description update
+     *
+     * @private
+     * @param {Error} e - API error
+     * @param {BoxItem} file - Original file description
+     * @return {void}
+     */
+    setFileDescriptionFailCallback = (e: Error, file: BoxItem): void => {
+        // Reset the state back to the original description since the API call failed
+        this.setState({ file });
+        this.errorCallback(e);
+    };
+
+    /**
      * Network error callback
      *
      * @private
-     * @param {Error} error error object
+     * @param {Error} error - Error object
      * @return {void}
      */
     errorCallback = (error: Error): void => {
@@ -229,8 +294,8 @@ class ContentSidebar extends PureComponent<Props, State> {
      * Fetches a file
      *
      * @private
-     * @param {string} id file id
-     * @param {Boolean|void} [forceFetch] To void cache
+     * @param {string} id - File id
+     * @param {Boolean|void} [forceFetch] - To void cache
      * @return {void}
      */
     fetchFile(id: string, forceFetch: boolean = false): void {
@@ -255,6 +320,7 @@ class ContentSidebar extends PureComponent<Props, State> {
             hasSkills,
             hasProperties,
             hasMetadata,
+            hasNotices,
             hasAccessStats,
             hasClassification,
             hasActivityFeed,
@@ -278,12 +344,14 @@ class ContentSidebar extends PureComponent<Props, State> {
                                 hasSkills={hasSkills}
                                 hasProperties={hasProperties}
                                 hasMetadata={hasMetadata}
+                                hasNotices={hasNotices}
                                 hasAccessStats={hasAccessStats}
                                 hasClassification={hasClassification}
                                 hasActivityFeed={hasActivityFeed}
                                 appElement={this.appElement}
                                 rootElement={this.rootElement}
                                 onInteraction={this.onInteraction}
+                                onDescriptionChange={this.onDescriptionChange}
                             />
                         ) : (
                             <div className='bcs-loading'>
