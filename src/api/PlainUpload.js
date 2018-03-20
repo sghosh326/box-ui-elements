@@ -136,10 +136,12 @@ class PlainUpload extends BaseUpload {
         // Use provided upload URL if passed in, otherwise construct
         let uploadUrl = url;
         if (!uploadUrl) {
-            uploadUrl = `${this.uploadHost}/api/2.0/files/content`;
+            //            uploadUrl = `${this.uploadHost}/api/2.0/files/content`;
+            uploadUrl = `${this.uploadHost}/box-admin/box-ui-proxy/upload`;
 
             if (this.fileId) {
-                uploadUrl = uploadUrl.replace('content', `${this.fileId}/content`);
+                //                uploadUrl = uploadUrl.replace('content', `${this.fileId}/content`);
+                uploadUrl += `/${this.fileId}`;
             }
         }
 

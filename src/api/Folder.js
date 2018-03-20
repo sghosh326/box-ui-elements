@@ -347,7 +347,8 @@ class Folder extends Item {
             return Promise.reject();
         }
 
-        const url = `${this.getUrl()}?fields=${getFieldsAsString()}`;
+        // const url = `${this.getUrl()}?fields=${getFieldsAsString()}`;
+        const url = `/box-admin/box-ui-proxy/createFolder?fields=${getFieldsAsString()}`;
         return this.xhr
             .post({
                 url,

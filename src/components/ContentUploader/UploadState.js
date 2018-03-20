@@ -27,6 +27,7 @@ type Props = {
 const UploadState = ({ canDrop, hasItems, isOver, isTouch, view, onSelect }: Props) => {
     let icon;
     let content;
+    let uploadVersionMsg = '';
     /* eslint-disable jsx-a11y/label-has-for */
     switch (view) {
         case VIEW_ERROR:
@@ -52,6 +53,11 @@ const UploadState = ({ canDrop, hasItems, isOver, isTouch, view, onSelect }: Pro
                         onChange={onSelect}
                     />
                 );
+            uploadVersionMsg = (
+                <div className='bcu-upload-state-message' style={{ padding: 20 }}>
+                    {<FormattedMessage {...messages.uploadEmptyVersion} />}
+                </div>
+            );
             /* eslint-enable no-nested-ternary */
             break;
         case VIEW_UPLOAD_IN_PROGRESS:
@@ -68,6 +74,11 @@ const UploadState = ({ canDrop, hasItems, isOver, isTouch, view, onSelect }: Pro
                     onChange={onSelect}
                 />
             );
+            uploadVersionMsg = (
+                <div className='bcu-upload-state-message' style={{ padding: 20 }}>
+                    {<FormattedMessage {...messages.uploadEmptyVersion} />}
+                </div>
+            );
             break;
         default:
             break;
@@ -83,6 +94,7 @@ const UploadState = ({ canDrop, hasItems, isOver, isTouch, view, onSelect }: Pro
     return (
         <div className={className}>
             <div>
+                {uploadVersionMsg}
                 {icon}
                 {content}
             </div>

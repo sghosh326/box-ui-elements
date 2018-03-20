@@ -123,6 +123,7 @@ class Xhr {
         if (token) {
             // Only add a token when there was one found
             headers.Authorization = `Bearer ${token}`;
+            headers['X-Auth-Token'] = `Bearer ${token}`;
         }
 
         return headers;

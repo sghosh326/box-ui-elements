@@ -103,6 +103,11 @@ const messages: { [string]: IntlDESCriptor } = defineMessages({
         description: 'Label for upload action.',
         defaultMessage: 'Upload'
     },
+    uploadNewVersion: {
+        id: 'be.uploadNewVersion',
+        description: 'Label for Upload New Version action.',
+        defaultMessage: 'Upload New Version'
+    },
     newFolder: {
         id: 'be.newFolder',
         description: 'Label for create new folder action.',
@@ -112,6 +117,11 @@ const messages: { [string]: IntlDESCriptor } = defineMessages({
         id: 'be.in',
         description: 'Label for in action.',
         defaultMessage: 'In'
+    },
+    by: {
+        id: 'be.by',
+        description: 'Label for by in modified column.',
+        defaultMessage: 'by'
     },
     selected: {
         id: 'be.selected',
@@ -337,6 +347,12 @@ const messages: { [string]: IntlDESCriptor } = defineMessages({
         id: 'be.uploadEmptyInput',
         description: 'Message shown for upload link when there are no items to upload',
         defaultMessage: 'browse your device'
+    },
+    uploadEmptyVersion: {
+        id: 'be.uploadEmptyVersion',
+        description: 'Message shown below upload selector for uploading new versions',
+        defaultMessage:
+            'We are working on adding the feature to allow upload and access of multiple versions without overwriting previous versions. In the interim to upload new version of the same file please rename the file to include "v1, v2, v3" etc before uploading.'
     },
     uploadNoDragDrop: {
         id: 'be.uploadNoDragDrop',
