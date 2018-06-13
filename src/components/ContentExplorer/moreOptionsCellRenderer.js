@@ -27,6 +27,7 @@ import './MoreOptionsCell.scss';
 export default (
     canPreview: boolean,
     canShare: boolean,
+    canMoveOrCopy: boolean,
     canDownload: boolean,
     canDelete: boolean,
     canRename: boolean,
@@ -35,6 +36,7 @@ export default (
     onItemDownload: Function,
     onItemRename: Function,
     onItemShare: Function,
+    onItemMoveOrCopy: Function,
     onItemPreview: Function,
     isSmall: boolean,
     rootElement: HTMLElement
@@ -44,6 +46,7 @@ export default (
     const onDownload = () => onItemDownload(rowData);
     const onRename = () => onItemRename(rowData);
     const onShare = () => onItemShare(rowData);
+    const onMoveOrCopy = () => onItemMoveOrCopy(rowData);
     const onPreview = () => onItemPreview(rowData);
 
     const { permissions, type } = rowData;
@@ -56,6 +59,7 @@ export default (
     const allowOpen = type === TYPE_WEBLINK;
     const allowDelete = canDelete && permissions[PERMISSION_CAN_DELETE];
     const allowShare = canShare && permissions[PERMISSION_CAN_SHARE];
+    const allowMoveCopy = canMoveOrCopy && permissions[PERMISSION_CAN_SHARE];
     const allowRename = canRename && permissions[PERMISSION_CAN_RENAME];
     const allowDownload =
         canDownload && permissions[PERMISSION_CAN_DOWNLOAD] && type === TYPE_FILE && !Browser.isMobile();
@@ -100,6 +104,11 @@ export default (
                     {allowShare ? (
                         <MenuItem onClick={onShare}>
                             <FormattedMessage {...messages.share} />
+                        </MenuItem>
+                    ) : null}
+                    {allowMoveCopy ? (
+                        <MenuItem onClick={onMoveOrCopy}>
+                            <FormattedMessage {...messages.moveOrCopy} />
                         </MenuItem>
                     ) : null}
                 </Menu>

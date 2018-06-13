@@ -86,6 +86,39 @@ class Item extends Base {
     }
 
     /**
+     * RNS Rename URL for items
+     *
+     * @param {string} id - Item id
+     * @protected
+     * @return {string} Base url for files
+     */
+    getRenameUrl(id: string): string {
+        return `getRenameUrl(${id}) should be overriden`;
+    }
+
+    /**
+     * Copy/Move URL for items
+     *
+     * @param {string} id - Item id
+     * @protected
+     * @return {string} Base url for files
+     */
+    getCopyMoveUrl(id: string): string {
+        return `getCopyMoveUrl(${id}) should be overriden`;
+    }
+
+    /**
+     * Generate Links for items
+     *
+     * @param {string} id - Item id
+     * @protected
+     * @return {string} Base url for files
+     */
+    getGenerateLinkUrl(id: string): string {
+        return `getGenerateLinkUrl(${id}) should be overriden`;
+    }
+
+    /**
      * Merges new data with old data and returns new data
      *
      * @param {String} cacheKey - The cache key of item to merge
@@ -251,7 +284,7 @@ class Item extends Base {
         this.errorCallback = errorCallback;
 
         return this.xhr
-            .put({ url: `${this.getUrl(id)}`, data: { name } })
+            .put({ url: `${this.getRenameUrl(id)}`, data: { name } })
             .then(this.renameSuccessHandler)
             .catch(this.errorHandler);
     }
@@ -307,6 +340,192 @@ class Item extends Base {
                 }
             })
             .then(this.shareSuccessHandler)
+            .catch(this.errorHandler);
+    }
+
+    /**
+     * Handles rnsShare server response
+     *
+     * @param {BoxItem} data - The updated item
+     * @return {void}
+     */
+    rnsShareSuccessHandler = ({ data }: { data: BoxItem }): void => {
+        this.successCallback(data);
+    };
+
+    /**
+     * API to create or remove a shared link
+     *
+     * @param {Object} item - Item to share
+     * @param {string} access - Shared access level
+     * @param {Function} successCallback - Success callback
+     * @param {Function|void} errorCallback - Error callback
+     * @return {void}
+     */
+    rnsShare(
+        item: BoxItem,
+        recipients: string,
+        rootFolderId: string,
+        externalUser: string,
+        message: string,
+        successCallback: Function,
+        errorCallback: Function = noop
+    ): Promise<void> {
+        if (this.isDestroyed()) {
+            return Promise.reject();
+        }
+
+        const { id, permissions }: BoxItem = item;
+        if (!id || !permissions) {
+            errorCallback();
+            return Promise.reject();
+        }
+
+        const { can_share }: BoxItemPermission = permissions;
+        if (!can_share) {
+            errorCallback();
+            return Promise.reject();
+        }
+
+        this.id = id;
+        this.successCallback = successCallback;
+        this.errorCallback = errorCallback;
+
+        // We use the parent folder's auth token since use case involves
+        // only content explorer or picker which works onf folder tokens
+        return this.xhr
+            .put({
+                url: this.getShareUrl(this.id),
+                data: {
+                    recipients,
+                    sharedFolderId: rootFolderId,
+                    message,
+                    externalUser
+                }
+            })
+            .then(this.rnsShareSuccessHandler)
+            .catch(this.errorHandler);
+    }
+
+    /**
+     * Handles links server response
+     *
+     * @param {BoxItem} data - The updated item
+     * @return {void}
+     */
+    generateLinksSuccessHandler = ({ data }: { data: BoxItem }): void => {
+        this.successCallback(data);
+    };
+
+    /**
+     * API to create shared links
+     *
+     * @param {Object} item - Item to share
+     * @param {string} rootFolderId - The top level folder
+     * @param {Function} successCallback - Success callback
+     * @param {Function|void} errorCallback - Error callback
+     * @return {void}
+     */
+    generateLinks(
+        item: BoxItem,
+        rootFolderId: string,
+        successCallback: Function,
+        errorCallback: Function = noop
+    ): Promise<void> {
+        if (this.isDestroyed()) {
+            return Promise.reject();
+        }
+
+        const { id, permissions }: BoxItem = item;
+        if (!id || !permissions) {
+            errorCallback();
+            return Promise.reject();
+        }
+
+        const { can_share }: BoxItemPermission = permissions;
+        if (!can_share) {
+            errorCallback();
+            return Promise.reject();
+        }
+
+        this.id = id;
+        this.successCallback = successCallback;
+        this.errorCallback = errorCallback;
+
+        // We use the parent folder's auth token since use case involves
+        // only content explorer or picker which works onf folder tokens
+        return this.xhr
+            .put({
+                url: this.getGenerateLinkUrl(this.id),
+                data: {
+                    sharedFolderId: rootFolderId
+                }
+            })
+            .then(this.generateLinksSuccessHandler)
+            .catch(this.errorHandler);
+    }
+
+    /**
+     * Handles copy or move server response
+     *
+     * @param {BoxItem} data - The updated item
+     * @return {void}
+     */
+    copyOrMoveSuccessHandler = ({ data }: { data: BoxItem }): void => {
+        this.successCallback(data);
+    };
+
+    /**
+     * API to copy or move a file/folder to a destination folder
+     *
+     * @param {Object} item - Item to share
+     * @param {string} access - Shared access level
+     * @param {Function} successCallback - Success callback
+     * @param {Function|void} errorCallback - Error callback
+     * @return {void}
+     */
+    copyOrMove(
+        item: BoxItem,
+        destFolderId: string,
+        rootFolderId: string,
+        externalUser: string,
+        copy: boolean,
+        successCallback: Function,
+        errorCallback: Function = noop
+    ): Promise<void> {
+        if (this.isDestroyed()) {
+            return Promise.reject();
+        }
+
+        const { id, permissions }: BoxItem = item;
+        if (!id || !permissions) {
+            errorCallback();
+            return Promise.reject();
+        }
+
+        const { can_share }: BoxItemPermission = permissions;
+        if (!can_share) {
+            errorCallback();
+            return Promise.reject();
+        }
+
+        this.id = id;
+        this.successCallback = successCallback;
+        this.errorCallback = errorCallback;
+
+        // We use the parent folder's auth token since use case involves
+        // only content explorer or picker which works onf folder tokens
+        return this.xhr
+            .put({
+                url: this.getCopyMoveUrl(this.id),
+                data: {
+                    destFolderId,
+                    sharedFolderId: rootFolderId,
+                    externalUser,
+                    copy
+                }
+            })
+            .then(this.copyOrMoveSuccessHandler)
             .catch(this.errorHandler);
     }
 }

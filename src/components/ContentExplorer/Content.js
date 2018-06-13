@@ -30,6 +30,7 @@ type Props = {
     tableRef: Function,
     rootElement: HTMLElement,
     canShare: boolean,
+    canMoveOrCopy: boolean,
     canDownload: boolean,
     canDelete: boolean,
     canRename: boolean,
@@ -40,6 +41,7 @@ type Props = {
     onItemDelete: Function,
     onItemRename: Function,
     onItemShare: Function,
+    onItemMoveOrCopy: Function,
     onItemPreview: Function,
     onSortChange: Function,
     isSmall: boolean,
@@ -63,6 +65,7 @@ const Content = ({
     canDelete,
     canRename,
     canShare,
+    canMoveOrCopy,
     canPreview,
     onItemClick,
     onItemSelect,
@@ -70,6 +73,7 @@ const Content = ({
     onItemDownload,
     onItemRename,
     onItemShare,
+    onItemMoveOrCopy,
     onItemPreview,
     onSortChange
 }: Props) => (
@@ -91,6 +95,7 @@ const Content = ({
                 currentCollection={currentCollection}
                 tableRef={tableRef}
                 canShare={canShare}
+                canMoveOrCopy={canMoveOrCopy}
                 canPreview={canPreview}
                 canDelete={canDelete}
                 canRename={canRename}
@@ -101,6 +106,7 @@ const Content = ({
                 onItemDownload={onItemDownload}
                 onItemRename={onItemRename}
                 onItemShare={onItemShare}
+                onItemMoveOrCopy={onItemMoveOrCopy}
                 onItemPreview={onItemPreview}
                 onSortChange={onSortChange}
             />

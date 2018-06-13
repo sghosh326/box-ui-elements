@@ -48,6 +48,11 @@ const messages: { [string]: IntlDESCriptor } = defineMessages({
         description: 'Label for copy action.',
         defaultMessage: 'Copy'
     },
+    move: {
+        id: 'be.move',
+        description: 'Label for move action.',
+        defaultMessage: 'Move'
+    },
     delete: {
         id: 'be.delete',
         description: 'Label for delete action.',
@@ -107,6 +112,11 @@ const messages: { [string]: IntlDESCriptor } = defineMessages({
         id: 'be.uploadNewVersion',
         description: 'Label for Upload New Version action.',
         defaultMessage: 'Upload New Version'
+    },
+    moveOrCopy: {
+        id: 'be.moveOrCopy',
+        description: 'Label for Move or Copy action.',
+        defaultMessage: 'Move or Copy'
     },
     newFolder: {
         id: 'be.newFolder',
@@ -261,12 +271,72 @@ const messages: { [string]: IntlDESCriptor } = defineMessages({
     shareDialogText: {
         id: 'be.shareDialogText',
         description: 'Text for share link dialog',
-        defaultMessage: 'Shared Link:'
+        defaultMessage: 'Shared Links:'
     },
     shareDialogNone: {
         id: 'be.shareDialogNone',
         description: 'Text for no shared link',
         defaultMessage: 'None'
+    },
+    emailSharedLink: {
+        id: 'be.emailSharedLink',
+        description: 'Label for recipients to email',
+        defaultMessage: 'Email Shared Link'
+    },
+    sendEmail: {
+        id: 'be.sendEmail',
+        description: 'Label for send email button',
+        defaultMessage: 'Send Email'
+    },
+    emailSharedLinkPlaceholder: {
+        id: 'be.emailSharedLinkPlaceholder',
+        description: 'Placehoder for recipients to email',
+        defaultMessage: 'Enter names or email addresses'
+    },
+    messageSharedLink: {
+        id: 'be.messageSharedLink',
+        description: 'Label for shared link email message',
+        defaultMessage: 'Message'
+    },
+    messageSharedLinkPlaceholder: {
+        id: 'be.messageSharedLinkPlaceholder',
+        description: 'Placehoder for message in shared link email',
+        defaultMessage: 'Please enter the message you would like to send in the email.'
+    },
+    generateLinks: {
+        id: 'be.generateLinks',
+        description: 'Label for button to generate shared links',
+        defaultMessage: 'Generate Links'
+    },
+    sharedLinks: {
+        id: 'be.sharedLinks',
+        description: 'Label for text area to copy shared links',
+        defaultMessage: 'Resilient Link: {rnsLink}\nBox Link: {boxLink}'
+    },
+    moveOrCopyDialogLabel: {
+        id: 'be.moveOrCopyDialogLabel',
+        description: 'Label for move or copy dialog',
+        defaultMessage: 'Move or Copy'
+    },
+    folderSelectText: {
+        id: 'be.folderSelectText',
+        description: 'Text for selecting the folder',
+        defaultMessage: 'Select a destination folder:'
+    },
+    searchFolderPlaceholder: {
+        id: 'be.searchFolderPlaceholder',
+        description: 'Placehoder for search for child folder',
+        defaultMessage: 'Search Folders'
+    },
+    moveOrCopyDialogErrorInUse: {
+        id: 'be.moveOrCopyDialogErrorInUse',
+        description: 'Error text for move or copy dialog when name is already in use',
+        defaultMessage: 'The file or folder already exists in the destination folder.'
+    },
+    defaultSharedLinkMessage: {
+        id: 'be.defaultSharedLinkMessage',
+        description: 'default message to send to shared link recipients',
+        defaultMessage: 'I would like to share my {type} with you on Box.<br><br>- {name}'
     },
     shareAccessOpen: {
         id: 'be.shareAccessOpen',

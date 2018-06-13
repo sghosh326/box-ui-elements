@@ -16,6 +16,7 @@ import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import RenameDialog from './RenameDialog';
 import CreateFolderDialog from '../CreateFolderDialog';
 import ShareDialog from './ShareDialog';
+import MoveCopyDialog from './MoveCopyDialog';
 import UploadDialog from '../UploadDialog';
 import PreviewDialog from './PreviewDialog';
 import Header from '../Header';
@@ -77,6 +78,7 @@ type Props = {
     canUpload: boolean,
     canRename: boolean,
     canShare: boolean,
+    canMoveOrCopy: boolean,
     canSetShareAccess: boolean,
     canCreateNewFolder: boolean,
     apiHost: string,
@@ -99,6 +101,7 @@ type Props = {
     onSelect: Function,
     onUpload: Function,
     onNavigate: Function,
+    onSearchDestFolders: Function,
     defaultView: DefaultView,
     hasPreviewSidebar: boolean,
     language?: string,
@@ -123,6 +126,7 @@ type State = {
     isRenameModalOpen: boolean,
     isCreateFolderModalOpen: boolean,
     isShareModalOpen: boolean,
+    isMoveCopyModalOpen: boolean,
     isUploadModalOpen: boolean,
     isPreviewModalOpen: boolean,
     isLoading: boolean,
@@ -150,6 +154,7 @@ class ContentExplorer extends Component<Props, State> {
         canUpload: true,
         canRename: true,
         canShare: true,
+        canMoveOrCopy: true,
         canPreview: true,
         canSetShareAccess: true,
         canCreateNewFolder: true,
@@ -167,6 +172,7 @@ class ContentExplorer extends Component<Props, State> {
         onSelect: noop,
         onUpload: noop,
         onNavigate: noop,
+        onSearchDestFolders: noop,
         defaultView: DEFAULT_VIEW_FILES,
         hasPreviewSidebar: false,
         onInteraction: noop
@@ -219,6 +225,7 @@ class ContentExplorer extends Component<Props, State> {
             isRenameModalOpen: false,
             isCreateFolderModalOpen: false,
             isShareModalOpen: false,
+            isMoveCopyModalOpen: false,
             isUploadModalOpen: false,
             isPreviewModalOpen: false,
             isLoading: false,
@@ -687,6 +694,87 @@ class ContentExplorer extends Component<Props, State> {
     };
 
     /**
+     * Callback that will call the RNS API to share item with recipients
+     *
+     */
+    rnsShare = (recipients: string, message: string) => {
+        const { selected }: State = this.state;
+        if (!selected) {
+            return;
+        }
+        const { type }: BoxItem = selected;
+        if (!type) {
+            return;
+        }
+        const { rootFolderId, className }: Props = this.props;
+
+        this.setState({ isLoading: true });
+        this.api
+            .getAPI(type)
+            .rnsShare(selected, recipients, rootFolderId, className, message, (updatedItem: BoxItem) => {
+                this.setState({ isLoading: false });
+                this.select(updatedItem);
+                this.closeModals();
+            });
+    };
+
+    /**
+     * Callback that will call the RNS API to generate shared links
+     *
+     */
+    generateLinks = () => {
+        const { selected }: State = this.state;
+        if (!selected) {
+            return;
+        }
+        const { type }: BoxItem = selected;
+        if (!type) {
+            return;
+        }
+        const { rootFolderId, className }: Props = this.props;
+
+        this.setState({ isLoading: true });
+        this.api.getAPI(type).generateLinks(selected, rootFolderId, (updatedItem: BoxItem) => {
+            this.setState({ isLoading: false });
+            this.select(updatedItem);
+        });
+    };
+
+    /**
+     * Callback that will call the RNS API to copy or move the item to the selected folder
+     *
+     */
+    copyOrMove = (destFolderId: string, copy: boolean) => {
+        const { selected }: State = this.state;
+        if (!selected) {
+            return;
+        }
+        const { type }: BoxItem = selected;
+        if (!type) {
+            return;
+        }
+        const { rootFolderId, className }: Props = this.props;
+
+        this.setState({ isLoading: true });
+        this.api.getAPI(type).copyOrMove(
+            selected,
+            destFolderId,
+            rootFolderId,
+            className,
+            copy,
+            (updatedItem: BoxItem) => {
+                this.setState({ isLoading: false });
+                this.select(updatedItem);
+                this.closeModals();
+                this.clearCache();
+            },
+            ({ code }) => {
+                this.setState({ errorCode: code, isLoading: false });
+            }
+        );
+    };
+
+    /**
      * Chages the sort by and sort direction
      *
      * @private
@@ -1016,7 +1104,11 @@ class ContentExplorer extends Component<Props, State> {
      * @return {void}
      */
     share = (item: BoxItem): void => {
-        this.select(item, this.shareCallback);
+        const { type }: BoxItem = item;
+        const { rootFolderId }: Props = this.props;
+        this.api.getAPI(type).generateLinks(item, rootFolderId, (updatedItem: BoxItem) => {
+            this.select(updatedItem, this.shareCallback);
+        });
     };
 
     /**
@@ -1047,6 +1139,44 @@ class ContentExplorer extends Component<Props, State> {
     };
 
     /**
+     * Selects the clicked file/folder and then move or copy for it
+     *
+     * @private
+     * @param {Object} item - file or folder object
+     * @return {void}
+     */
+    moveOrCopy = (item: BoxItem): void => {
+        this.select(item, this.moveOrCopyCallback);
+    };
+
+    /**
+     * Opens the Move/Copy dialog
+     *
+     * @private
+     * @return {void}
+     */
+    moveOrCopyCallback = (): void => {
+        const { selected }: State = this.state;
+        const { canMoveOrCopy }: Props = this.props;
+
+        if (!selected || !canMoveOrCopy) {
+            return;
+        }
+
+        const { permissions } = selected;
+        if (!permissions) {
+            return;
+        }
+
+        const { can_share }: BoxItemPermission = permissions;
+        if (!can_share) {
+            return;
+        }
+
+        this.setState({ isMoveCopyModalOpen: true });
+    };
+
+    /**
      * Saves reference to table component
      *
      * @private
@@ -1072,6 +1202,7 @@ class ContentExplorer extends Component<Props, State> {
             isRenameModalOpen: false,
             isCreateFolderModalOpen: false,
             isShareModalOpen: false,
+            isMoveCopyModalOpen: false,
             isUploadModalOpen: false,
             isPreviewModalOpen: false
         });
@@ -1167,6 +1298,7 @@ class ContentExplorer extends Component<Props, State> {
             canDownload,
             canPreview,
             canShare,
+            canMoveOrCopy,
             token,
             sharedLink,
             sharedLinkPassword,
@@ -1183,6 +1315,7 @@ class ContentExplorer extends Component<Props, State> {
             onUpload,
             hasPreviewSidebar,
             onInteraction,
+            onSearchDestFolders,
             requestInterceptor,
             responseInterceptor
         }: Props = this.props;
@@ -1195,6 +1328,7 @@ class ContentExplorer extends Component<Props, State> {
             isDeleteModalOpen,
             isRenameModalOpen,
             isShareModalOpen,
+            isMoveCopyModalOpen,
             isUploadModalOpen,
             isPreviewModalOpen,
             isCreateFolderModalOpen,
@@ -1206,7 +1340,7 @@ class ContentExplorer extends Component<Props, State> {
 
         const { id, permissions }: Collection = currentCollection;
         const { can_upload }: BoxItemPermission = permissions || {};
-        const styleClassName = classNames('be bce', className);
+        const styleClassName = classNames('be bce', '');
         const allowUpload: boolean = canUpload && !!can_upload;
         const allowCreate: boolean = canCreateNewFolder && !!can_upload;
 
@@ -1247,6 +1381,7 @@ class ContentExplorer extends Component<Props, State> {
                             focusedRow={focusedRow}
                             canSetShareAccess={canSetShareAccess}
                             canShare={canShare}
+                            canMoveOrCopy={canMoveOrCopy}
                             canPreview={canPreview}
                             canDelete={canDelete}
                             canRename={canRename}
@@ -1259,6 +1394,7 @@ class ContentExplorer extends Component<Props, State> {
                             onItemDownload={this.download}
                             onItemRename={this.rename}
                             onItemShare={this.share}
+                            onItemMoveOrCopy={this.moveOrCopy}
                             onItemPreview={this.preview}
                             onSortChange={this.sort}
                         />
@@ -1316,12 +1452,30 @@ class ContentExplorer extends Component<Props, State> {
                     ) : null}
                     {canShare && selected && !!this.appElement ? (
                         <ShareDialog
+                            rootId={rootFolderId}
                             isOpen={isShareModalOpen}
                             canSetShareAccess={canSetShareAccess}
-                            onShareAccessChange={this.changeShareAccess}
+                            onShareAccessChange={this.generateLinks}
+                            onShare={this.rnsShare}
                             onCancel={this.refreshCollection}
                             item={selected}
                             isLoading={isLoading}
+                            parentElement={this.rootElement}
+                            appElement={this.appElement}
+                        />
+                    ) : null}
+                    {canMoveOrCopy && selected && !!this.appElement ? (
+                        <MoveCopyDialog
+                            rootId={rootFolderId}
+                            currentFolderId={id}
+                            token={token}
+                            isOpen={isMoveCopyModalOpen}
+                            onMoveOrCopy={this.copyOrMove}
+                            onSearchDestFolders={onSearchDestFolders}
+                            onCancel={this.refreshCollection}
+                            item={selected}
+                            isLoading={isLoading}
+                            errorCode={errorCode}
                             parentElement={this.rootElement}
                             appElement={this.appElement}
                         />

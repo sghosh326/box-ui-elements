@@ -99,6 +99,38 @@ class Folder extends Item {
     }
 
     /**
+     * RNS Specific folder rename url
+     */
+    getRenameUrl(id: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/rename/folder${suffix}`;
+    }
+
+    /**
+     * RNS Specific folder share url
+     */
+    getShareUrl(id: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/share/folder${suffix}`;
+    }
+
+    /**
+     * RNS Specific file generate links url
+     */
+    getGenerateLinkUrl(id: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/links/folder${suffix}`;
+    }
+
+    /**
+     * RNS copy/move url
+     */
+    getCopyMoveUrl(id: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/copyOrMove/folder${suffix}`;
+    }
+
+    /**
      * Tells if a folder has its items all loaded
      *
      * @return {boolean} if items are loaded

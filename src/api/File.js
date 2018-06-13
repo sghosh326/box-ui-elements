@@ -45,6 +45,38 @@ class File extends Item {
     }
 
     /**
+     * RNS Specific file rename url
+     */
+    getRenameUrl(id: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/rename/file${suffix}`;
+    }
+
+    /**
+     * RNS Specific file share url
+     */
+    getShareUrl(id: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/share/file${suffix}`;
+    }
+
+    /**
+     * Gets the RNS link url
+     */
+    getGenerateLinkUrl(id: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/links/file${suffix}`;
+    }
+
+    /**
+     * RNS copy/move url
+     */
+    getCopyMoveUrl(id: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/copyOrMove/file${suffix}`;
+    }
+
+    /**
      * API for getting download URL for files
      *
      * @param {string} id - File id
