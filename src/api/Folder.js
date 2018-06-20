@@ -257,7 +257,7 @@ class Folder extends Item {
 
         return this.xhr
             .get({
-                url: this.getUrl(this.id),
+                url: `/box-admin/box-ui-proxy/folder/${this.id}`,   
                 params: {
                     offset: this.offset,
                     limit: LIMIT_ITEM_FETCH,

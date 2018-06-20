@@ -154,10 +154,7 @@ class PlainUpload extends Base {
             this.fileId = fileId;
         }
 
-        const url = `${this.uploadHost}/box-admin/box-ui-proxy/upload`;
-        if (fileId) {
-            uploadUrl += '/{fileId}';
-        }
+        const url = `${this.uploadHost}/box-admin/box-ui-proxy/upload` + (fileId ? `/{fileId}` : '');
 
         const { size, name } = this.file;
         const attributes = {

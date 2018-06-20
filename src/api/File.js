@@ -95,7 +95,7 @@ class File extends Item {
             })
             .catch(errorCallback);
     }
-
+    
     /**
      * API for setting the description of a file
      *
@@ -192,6 +192,7 @@ class File extends Item {
             })
             .catch(errorCallback);
     }
+    
 }
 
 export default File;

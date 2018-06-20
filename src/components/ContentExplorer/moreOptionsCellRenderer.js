@@ -18,6 +18,7 @@ import {
     PERMISSION_CAN_DELETE,
     PERMISSION_CAN_SHARE,
     PERMISSION_CAN_PREVIEW,
+    PERMISSION_CAN_UPLOAD,
     TYPE_FILE,
     TYPE_WEBLINK
 } from '../../constants';
@@ -31,12 +32,14 @@ export default (
     canDownload: boolean,
     canDelete: boolean,
     canRename: boolean,
+    canUpload: boolean,
     onItemSelect: Function,
     onItemDelete: Function,
     onItemDownload: Function,
     onItemRename: Function,
     onItemShare: Function,
     onItemMoveOrCopy: Function,
+    onItemUploadNewVersion: Function,
     onItemPreview: Function,
     isSmall: boolean,
     rootElement: HTMLElement
@@ -48,7 +51,8 @@ export default (
     const onShare = () => onItemShare(rowData);
     const onMoveOrCopy = () => onItemMoveOrCopy(rowData);
     const onPreview = () => onItemPreview(rowData);
-
+    const onUploadNewVersion = () => onItemUploadNewVersion(rowData);
+    
     const { permissions, type } = rowData;
 
     if (!permissions) {
@@ -63,7 +67,9 @@ export default (
     const allowRename = canRename && permissions[PERMISSION_CAN_RENAME];
     const allowDownload =
         canDownload && permissions[PERMISSION_CAN_DOWNLOAD] && type === TYPE_FILE && !Browser.isMobile();
-    const allowed = allowDelete || allowRename || allowDownload || allowPreview || allowShare || allowOpen;
+    const allowUploadNewVersion = 
+    	canUpload && permissions[PERMISSION_CAN_UPLOAD] && type === TYPE_FILE && !Browser.isMobile();
+    const allowed = allowDelete || allowRename || allowDownload || allowPreview || allowShare || allowOpen || allowUploadNewVersion;
 
     if (!allowed) {
         return <span />;
@@ -94,6 +100,11 @@ export default (
                     {allowDownload ? (
                         <MenuItem onClick={onDownload}>
                             <FormattedMessage {...messages.download} />
+                        </MenuItem>
+                    ) : null}
+                    {allowUploadNewVersion ? (
+                        <MenuItem onClick={onUploadNewVersion}>
+                            <FormattedMessage {...messages.uploadNewVersion} />
                         </MenuItem>
                     ) : null}
                     {allowRename ? (

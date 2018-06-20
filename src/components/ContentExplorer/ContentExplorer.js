@@ -402,6 +402,8 @@ class ContentExplorer extends Component<Props, State> {
         } else {
             this.setState(newState);
         }
+
+        
     }
 
     /**
@@ -1177,6 +1179,75 @@ class ContentExplorer extends Component<Props, State> {
     };
 
     /**
+     * This callback will be invoked after the file is successfully uploaded
+     * 
+     */
+    handleUploadNewVersionSuccess = (entries): void => {
+    	const { currentFolderId, rootFolderId }: Props = this.props;
+    	var uploadedItem = entries[0];
+    	this.setState({ loading: false });
+    	this.fetchFolder(currentFolderId ? currentFolderId : rootFolderId);
+    	//this.select(uploadedItem);
+    }
+    
+    /**
+     * This callback will be invoked after the user selects a file
+     */
+    handleUploadNewVersion = (event): void => {
+    	const { selected }: State = this.state;
+		var uploadFile = event.target.files[0];
+        const uploadAPI = this.api.getPlainUploadAPI();
+        const { id, parent } = selected;
+        uploadAPI.upload({ 
+        	folderId: parent.id, 
+        	fileId: id, 
+        	file: uploadFile, 
+        	successCallback: (entries) => this.handleUploadNewVersionSuccess(entries)
+        });
+        this.setState({ loading: true });
+    }
+    
+    /**
+     * Selects the clicked file and then performs the Upload New Version action 
+     *
+     * @private
+     * @param {Object} item - file object
+     * @return {void}
+     */
+    uploadNewVersion = (item: BoxItem): void => {
+    	this.select(item, this.uploadNewVersionCallback);
+    }
+    
+    /**
+     * Opens the File Dialog and waits for the user to select a file
+     *
+     * @private
+     * @return {void}
+     */
+    uploadNewVersionCallback = (): void => {
+    	const { selected }: State = this.state;
+    	const { canUpload }: Props = this.props;
+    	
+    	if (!selected || !canUpload) {
+    		return;
+    	}
+    	
+    	const { permissions } = selected;
+    	if (!permissions) {
+    		return;
+    	}
+    	
+    	const { can_upload }: BoxItemPermissions = permissions;
+    	if (!can_upload) {
+    		return;
+    	}
+    	var input = document.createElement('input');
+    	input.type = 'file';
+    	input.onchange = this.handleUploadNewVersion;
+    	input.click();
+    }
+    
+    /**
      * Saves reference to table component
      *
      * @private
@@ -1386,6 +1457,7 @@ class ContentExplorer extends Component<Props, State> {
                             canDelete={canDelete}
                             canRename={canRename}
                             canDownload={canDownload}
+                            canUpload={canUpload}
                             currentCollection={currentCollection}
                             tableRef={this.tableRef}
                             onItemSelect={this.select}
@@ -1395,6 +1467,7 @@ class ContentExplorer extends Component<Props, State> {
                             onItemRename={this.rename}
                             onItemShare={this.share}
                             onItemMoveOrCopy={this.moveOrCopy}
+                            onItemUploadNewVersion={this.uploadNewVersion}
                             onItemPreview={this.preview}
                             onSortChange={this.sort}
                         />

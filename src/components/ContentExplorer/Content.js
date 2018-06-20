@@ -35,6 +35,7 @@ type Props = {
     canDelete: boolean,
     canRename: boolean,
     canPreview: boolean,
+    canUpload: boolean,
     onItemClick: Function,
     onItemDownload: Function,
     onItemSelect: Function,
@@ -42,6 +43,7 @@ type Props = {
     onItemRename: Function,
     onItemShare: Function,
     onItemMoveOrCopy: Function,
+    onItemUploadNewVersion: Function,
     onItemPreview: Function,
     onSortChange: Function,
     isSmall: boolean,
@@ -67,6 +69,7 @@ const Content = ({
     canShare,
     canMoveOrCopy,
     canPreview,
+    canUpload,
     onItemClick,
     onItemSelect,
     onItemDelete,
@@ -74,6 +77,7 @@ const Content = ({
     onItemRename,
     onItemShare,
     onItemMoveOrCopy,
+    onItemUploadNewVersion,
     onItemPreview,
     onSortChange
 }: Props) => (
@@ -100,6 +104,7 @@ const Content = ({
                 canDelete={canDelete}
                 canRename={canRename}
                 canDownload={canDownload}
+                canUpload={canUpload}
                 onItemClick={onItemClick}
                 onItemSelect={onItemSelect}
                 onItemDelete={onItemDelete}
@@ -107,6 +112,7 @@ const Content = ({
                 onItemRename={onItemRename}
                 onItemShare={onItemShare}
                 onItemMoveOrCopy={onItemMoveOrCopy}
+                onItemUploadNewVersion={onItemUploadNewVersion}
                 onItemPreview={onItemPreview}
                 onSortChange={onSortChange}
             />

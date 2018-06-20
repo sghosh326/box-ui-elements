@@ -19,16 +19,26 @@ type Props = {
 };
 
 const ItemName = ({ item, onClick, onFocus, canPreview, isTouch }: Props) => {
-    const { name, type }: BoxItem = item;
+    const { name, type, file_version_num }: BoxItem = item;
     const onItemFocus = onFocus ? () => onFocus(item) : null;
     const onItemClick: Function = (): void => onClick(item);
 
     return type === TYPE_FOLDER || (!isTouch && (type === TYPE_WEBLINK || canPreview)) ? (
-        <PlainButton type='button' className='be-item-label' onFocus={onItemFocus} onClick={onItemClick}>
-            {name}
-        </PlainButton>
+    	<div>
+	    	<PlainButton type='button' className='be-item-label' onFocus={onItemFocus} onClick={onItemClick}>
+	            {name}
+	        </PlainButton>
+			{file_version_num && file_version_num !== 0 && file_version_num !== 1 &&
+				<span className='be-item-version-label'>V{file_version_num}</span>
+			}
+		</div>	
     ) : (
-        <span className='be-item-label'>{name}</span>
+		<div>
+			<span className='be-item-label'>{name}</span>
+			{file_version_num && file_version_num !== 0 && file_version_num !== 1 &&
+				<span className='be-item-version-label'>V{file_version_num}</span>
+			}
+		</div>
     );
 };
 
