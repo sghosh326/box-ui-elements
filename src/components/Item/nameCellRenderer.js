@@ -16,6 +16,7 @@ export default (
     view: View,
     rootElement: HTMLElement,
     onItemClick: Function,
+    onItemDownloadVersion: Function,
     onItemSelect?: Function,
     canPreview: boolean = false,
     showDetails: boolean = true,
@@ -27,7 +28,9 @@ export default (
             item={rowData}
             canPreview={canPreview}
             onClick={onItemClick}
+            onItemDownloadVersion={onItemDownloadVersion}
             onFocus={onItemSelect}
+            rootElement={rootElement}
         />
         {view === VIEW_SEARCH || showDetails ? (
             <ItemDetails

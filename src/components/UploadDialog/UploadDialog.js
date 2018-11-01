@@ -8,6 +8,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import { injectIntl } from 'react-intl';
 import ContentUploader from '../ContentUploader';
+import SubHeaderLeft from '../SubHeader/SubHeaderLeft';
 import messages from '../messages';
 import { CLASS_MODAL_CONTENT_FULL_BLEED, CLASS_MODAL_OVERLAY, CLASS_MODAL } from '../../constants';
 import type { Token } from '../../flowTypes';
@@ -40,6 +41,12 @@ const UploadDialog = ({
     uploadHost,
     onClose,
     parentElement,
+    view,
+    rootId,
+    isSmall,
+    rootName,
+    currentCollection,
+    onItemClick,
     appElement,
     onUpload,
     requestInterceptor,
@@ -56,6 +63,17 @@ const UploadDialog = ({
         contentLabel={intl.formatMessage(messages.upload)}
         appElement={appElement}
     >
+        <div className='be-sub-header' style={{ paddingBottom: 15 }}>
+            <SubHeaderLeft
+                rootId={rootId}
+                rootName={rootName}
+                rootElement={parentElement}
+                onItemClick={onItemClick}
+                currentCollection={currentCollection}
+                view={view}
+                isSmall={isSmall}
+            />
+        </div>
         <ContentUploader
             rootFolderId={currentFolderId}
             token={token}

@@ -442,7 +442,7 @@ const messages: { [string]: IntlDESCriptor } = defineMessages({
         id: 'be.uploadEmptyVersion',
         description: 'Message shown below upload selector for uploading new versions',
         defaultMessage:
-            'We are working on adding the feature to allow upload and access of multiple versions without overwriting previous versions. In the interim to upload new version of the same file please rename the file to include "v1, v2, v3" etc before uploading.'
+            'The feature to upload multiple versions of a file is now available through the "Upload New Version" menu. Note that currently only the most recent version of the uploaded file can be downloaded/viewed.'
     },
     uploadNoDragDrop: {
         id: 'be.uploadNoDragDrop',

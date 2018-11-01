@@ -53,6 +53,7 @@ type Props = {
     onItemShare: Function,
     onItemMoveOrCopy: Function,
     onItemUploadNewVersion: Function,
+    onItemDownloadVersion: Function,
     onItemPreview: Function,
     onSortChange: Function,
     tableRef: Function,
@@ -82,6 +83,7 @@ const ItemList = ({
     onItemShare,
     onItemMoveOrCopy,
     onItemUploadNewVersion,
+    onItemDownloadVersion,
     onItemPreview,
     onSortChange,
     currentCollection,
@@ -94,6 +96,7 @@ const ItemList = ({
         view,
         rootElement,
         onItemClick,
+        onItemDownloadVersion,
         onItemSelect,
         canPreview,
         isSmall, // shows details if false

@@ -23,7 +23,8 @@ type Props = {
     isOpen: boolean,
     onMoveOrCopy: Function,
     onCancel: Function,
-    onSearchDestFolders: Function,
+    // onSearchDestFolders: Function,
+    moveCopySharedFolders: array,
     item: BoxItem,
     isLoading: boolean,
     errorCode: string,
@@ -39,7 +40,8 @@ const MoveCopyDialog = ({
     isOpen,
     onMoveOrCopy,
     onCancel,
-    onSearchDestFolders,
+    // onSearchDestFolders,
+    moveCopySharedFolders,
     item,
     isLoading,
     errorCode,
@@ -56,14 +58,14 @@ const MoveCopyDialog = ({
 
     const move = () => {
         if (selFolderId && selFolderId.length) {
-            console.log(`The selected Folder Id for Move: ${  selFolderId}`);
+            console.log(`The selected Folder Id for Move: ${selFolderId}`);
             onMoveOrCopy(selFolderId, false);
         }
     };
 
     const copy = () => {
         if (selFolderId && selFolderId.length) {
-            console.log(`The selected Folder Id for Copy:${  selFolderId}`);
+            console.log(`The selected Folder Id for Copy:${selFolderId}`);
             onMoveOrCopy(selFolderId, true);
         }
     };
@@ -102,7 +104,8 @@ const MoveCopyDialog = ({
                     currentFolderId={currentFolderId}
                     token={token}
                     onSelectDestFolder={onSelectChildFolder}
-                    onSearchDestFolders={onSearchDestFolders}
+                    moveCopySharedFolders={moveCopySharedFolders}
+                    // onSearchDestFolders={onSearchDestFolders}
                 />
             </div>
             <div className='be-modal-btns pull-right'>

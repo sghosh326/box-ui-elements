@@ -154,6 +154,11 @@ export type BoxItemVersion = {
     id?: string
 };
 
+export type BoxItemVersionCollection = {
+    total_count?: number,
+    entries?: BoxItemVersion[]
+};
+
 export type BoxItem = {
     id?: string,
     name?: string,
@@ -180,7 +185,7 @@ export type BoxItem = {
     selected?: boolean,
     metadata?: MetadataType,
     file_version?: BoxItemVersion,
-    file_version_num?: number,  		
+    version_info?: BoxItemVersionCollection,
     is_download_available: boolean
 };
 

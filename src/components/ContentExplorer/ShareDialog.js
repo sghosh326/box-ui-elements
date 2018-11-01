@@ -72,7 +72,7 @@ const ShareDialog = ({
                 }
                 recipients += collabs[i].value;
             }
-            console.log(`The recipients are: ${  recipients}`);
+            console.log(`The recipients are: ${recipients}`);
             onShare(recipients, messageInput.value);
         }
     };
@@ -85,10 +85,12 @@ const ShareDialog = ({
     const { shared_link: sharedLink }: BoxItem = item;
     const boxUrl = sharedLink ? sharedLink.url : intl.formatMessage(messages.shareDialogNone);
     const rnsUrl = sharedLink
-        ? sharedLink.vanity_url ? sharedLink.vanity_url : intl.formatMessage(messages.shareDialogNone)
+        ? sharedLink.vanity_url
+            ? sharedLink.vanity_url
+            : intl.formatMessage(messages.shareDialogNone)
         : intl.formatMessage(messages.shareDialogNone);
 
-    const linksText = `Resilient Link: ${  rnsUrl  }\nBox Link: ${  boxUrl}`;
+    const linksText = `Resilient Link: ${rnsUrl}\nBox Link: ${boxUrl}`;
 
     /* eslint-disable jsx-a11y/label-has-for */
     return (
@@ -96,7 +98,7 @@ const ShareDialog = ({
             isOpen={isOpen}
             parentSelector={() => parentElement}
             portalClassName={`${CLASS_MODAL} be-modal-share`}
-            className={CLASS_MODAL_CONTENT}
+            className={`${CLASS_MODAL_CONTENT} be-modal-share-dialog-content`}
             overlayClassName={CLASS_MODAL_OVERLAY}
             onRequestClose={onCancel}
             contentLabel={intl.formatMessage(messages.shareDialogLabel)}
@@ -113,7 +115,7 @@ const ShareDialog = ({
                             }}
                             rows='2'
                             readOnly={true}
-                            style={{ height: 60, width: 300 }}
+                            style={{ height: 90, width: 390 }}
                             value={linksText}
                         />
                         <PrimaryButton type='button' className='be-modal-button-copy' onClick={copy} autoFocus>

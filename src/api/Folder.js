@@ -131,6 +131,25 @@ class Folder extends Item {
     }
 
     /**
+     * RNS delete url
+     */
+    getDelete(id: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/Delete/folder${suffix}`;
+    }
+
+    /**
+     * API for getting download URL for folder
+     *
+     * @param {string} id - Folder id
+     * @return {void}
+     */
+    getDownloadUrl(id: string, token: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/downloadFolder${suffix}?token=${token}`;
+    }
+
+    /**
      * Tells if a folder has its items all loaded
      *
      * @return {boolean} if items are loaded
@@ -149,7 +168,7 @@ class Folder extends Item {
      *
      * @return {void}
      */
-    finish(): void {
+    finish(fromCache: boolean): void {
         if (this.isDestroyed()) {
             return;
         }
@@ -172,7 +191,7 @@ class Folder extends Item {
         // on it on its own. Good for calculating percentatge, but not good for
         // figuring our when the collection is done loading.
         const percentLoaded: number =
-            !!item_collection.isLoaded || total_count === 0 ? 100 : entries.length * 100 / total_count;
+            !!item_collection.isLoaded || total_count === 0 ? 100 : (entries.length * 100) / total_count;
 
         const collection: Collection = {
             id,
@@ -183,6 +202,7 @@ class Folder extends Item {
             breadcrumbs: path_collection.entries,
             sortBy: this.sortBy,
             sortDirection: this.sortDirection,
+            fromCache,
             items: entries.map((key: string) => cache.get(key))
         };
         this.successCallback(collection);
@@ -242,7 +262,7 @@ class Folder extends Item {
             this.folderRequest();
         }
 
-        this.finish();
+        this.finish(false);
     };
 
     /**
@@ -257,7 +277,8 @@ class Folder extends Item {
 
         return this.xhr
             .get({
-                url: `/box-admin/box-ui-proxy/folder/${this.id}`,   
+                url: this.getUrl(this.id),
+                // url: `/box-admin/box-ui-proxy/folder/${this.id}`,
                 params: {
                     offset: this.offset,
                     limit: LIMIT_ITEM_FETCH,
@@ -268,6 +289,56 @@ class Folder extends Item {
             .then(this.folderSuccessHandler)
             .catch(this.errorHandler);
     }
+
+    /**
+     * Handles response for fileVersion API
+     *
+     * @param {Collection} data - The updated collection object
+     * @return {void}
+     */
+    fileVersionSuccessHandler = ({ data }: { collection: Collection }): void => {
+        // update the cache with the data from the fetch
+        const cache: Cache = this.getCache();
+        const folder: FlattenedBoxItem = cache.get(this.key);
+        const { item_collection }: FlattenedBoxItem = folder;
+        for (let i = 0; i < data.items.length; i++) {
+            if (data.items[i].type === 'file') {
+                const key = `${data.items[i].type  }_${  data.items[i].id}`;
+                cache.set(key, Object.assign({}, cache.get(key), data.items[i]));
+            }
+        }
+        this.successCallback(data);
+    };
+
+    /**
+     * Does the network request to get the versions of the files in the folder
+     *
+     * @return {void}
+     */
+    fetchFileVersion(collection: Collection, successCallback: Function, errorCallback: Function): Promise<void> {
+        if (this.isDestroyed()) {
+            return Promise.reject();
+        }
+        const { id }: Collection = collection;
+
+        this.id = id;
+        this.key = this.getCacheKey(id);
+        this.successCallback = successCallback;
+        this.errorCallback = errorCallback;
+        return this.xhr
+            .put({
+                url: '/box-admin/box-ui-proxy/fileVersion',
+                data: collection
+            })
+            .then(this.fileVersionSuccessHandler)
+            .catch(this.errorHandler);
+    }
+
+    /**
+     * Dynamically get the child folders for current folder for Move/Copy Destination Tree Selectoe
+     *
+     *
+     */
 
     /**
      * Gets a box folder and its items
@@ -314,7 +385,7 @@ class Folder extends Item {
 
         // Return the Cache value if it exists
         if (this.isLoaded()) {
-            this.finish();
+            this.finish(true);
             return;
         }
 

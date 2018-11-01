@@ -77,6 +77,14 @@ class File extends Item {
     }
 
     /**
+     * RNS delete url
+     */
+    getDeleteUrl(id: string): string {
+        const suffix: string = id ? `/${id}` : '';
+        return `/box-admin/box-ui-proxy/Delete/file${suffix}`;
+    }
+
+    /**
      * API for getting download URL for files
      *
      * @param {string} id - File id
@@ -95,7 +103,11 @@ class File extends Item {
             })
             .catch(errorCallback);
     }
-    
+
+    getVersionDownloadUrl(id: string, versionId: string, token: string): string {
+        return `/box-admin/box-ui-proxy/downloadVersion/${id}?token=${token}&versionId=${versionId}`;
+    }
+
     /**
      * API for setting the description of a file
      *
@@ -192,7 +204,6 @@ class File extends Item {
             })
             .catch(errorCallback);
     }
-    
 }
 
 export default File;

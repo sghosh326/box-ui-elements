@@ -92,6 +92,7 @@ type Props = {
     isTouch: boolean,
     autoFocus: boolean,
     className: string,
+    userEmail: string,
     measureRef: Function,
     onDelete: Function,
     onDownload: Function,
@@ -101,7 +102,8 @@ type Props = {
     onSelect: Function,
     onUpload: Function,
     onNavigate: Function,
-    onSearchDestFolders: Function,
+    // onSearchDestFolders: Function,
+    moveCopySharedFolder: array,
     defaultView: DefaultView,
     hasPreviewSidebar: boolean,
     language?: string,
@@ -164,6 +166,7 @@ class ContentExplorer extends Component<Props, State> {
         staticHost: DEFAULT_HOSTNAME_STATIC,
         uploadHost: DEFAULT_HOSTNAME_UPLOAD,
         className: '',
+        userEmail: '',
         onDelete: noop,
         onDownload: noop,
         onPreview: noop,
@@ -172,7 +175,8 @@ class ContentExplorer extends Component<Props, State> {
         onSelect: noop,
         onUpload: noop,
         onNavigate: noop,
-        onSearchDestFolders: noop,
+        // onSearchDestFolders: noop,
+        moveCopySharedFolders: [],
         defaultView: DEFAULT_VIEW_FILES,
         hasPreviewSidebar: false,
         onInteraction: noop
@@ -284,7 +288,9 @@ class ContentExplorer extends Component<Props, State> {
      */
     componentWillReceiveProps(nextProps: Props) {
         const { currentFolderId }: Props = nextProps;
-        const { currentCollection: { id } }: State = this.state;
+        const {
+            currentCollection: { id }
+        }: State = this.state;
 
         if (typeof currentFolderId === 'string' && id !== currentFolderId) {
             this.fetchFolder(currentFolderId);
@@ -330,7 +336,9 @@ class ContentExplorer extends Component<Props, State> {
      */
     finishNavigation() {
         const { autoFocus }: Props = this.props;
-        const { currentCollection: { percentLoaded } }: State = this.state;
+        const {
+            currentCollection: { percentLoaded }
+        }: State = this.state;
 
         // If loading for the very first time, only allow focus if autoFocus is true
         if (this.firstLoad && !autoFocus) {
@@ -356,7 +364,11 @@ class ContentExplorer extends Component<Props, State> {
      * @return {void}
      */
     refreshCollection = () => {
-        const { currentCollection: { id }, view, searchQuery }: State = this.state;
+        const {
+            currentCollection: { id },
+            view,
+            searchQuery
+        }: State = this.state;
         if (view === VIEW_FOLDER && id) {
             this.fetchFolder(id, false);
         } else if (view === VIEW_RECENTS) {
@@ -369,6 +381,27 @@ class ContentExplorer extends Component<Props, State> {
     };
 
     /**
+     * File version success callback
+     *
+     * @private
+     * @param {Object} collection - item collection object
+     * @return {void}
+     */
+    fetchFileVersionSuccessCallback(collection: Collection) {
+        const { rootFolderId }: Props = this.props;
+        const { id, name, boxItem }: Collection = collection;
+
+        // New folder state
+        const newState = {
+            selected: undefined,
+            currentCollection: collection,
+            rootName: id === rootFolderId ? name : ''
+        };
+
+        this.setState(newState);
+    }
+
+    /**
      * Folder fetch success callback
      *
      * @private
@@ -378,7 +411,7 @@ class ContentExplorer extends Component<Props, State> {
      */
     fetchFolderSuccessCallback(collection: Collection, triggerNavigationEvent: boolean): void {
         const { onNavigate, rootFolderId }: Props = this.props;
-        const { id, name, boxItem }: Collection = collection;
+        const { id, name, boxItem, items, fromCache }: Collection = collection;
 
         // New folder state
         const newState = {
@@ -402,8 +435,16 @@ class ContentExplorer extends Component<Props, State> {
         } else {
             this.setState(newState);
         }
-
-        
+        // we will progressively fetch the version labels and update the UI
+        if (!fromCache) {
+            this.api.getFolderAPI().fetchFileVersion(
+                collection,
+                (updatedCollection: Collection) => {
+                    this.fetchFileVersionSuccessCallback(updatedCollection);
+                },
+                this.errorCallback
+            );
+        }
     }
 
     /**
@@ -538,7 +579,9 @@ class ContentExplorer extends Component<Props, State> {
      */
     search = (query: string, forceFetch: boolean = false) => {
         const { rootFolderId }: Props = this.props;
-        const { currentCollection: { id } }: State = this.state;
+        const {
+            currentCollection: { id }
+        }: State = this.state;
         const folderId = typeof id === 'string' ? id : rootFolderId;
         const trimmedQuery: string = query.trim();
 
@@ -635,7 +678,9 @@ class ContentExplorer extends Component<Props, State> {
      * @return {void}
      */
     upload = () => {
-        const { currentCollection: { id, permissions } }: State = this.state;
+        const {
+            currentCollection: { id, permissions }
+        }: State = this.state;
         const { canUpload }: Props = this.props;
         if (!canUpload || !id || !permissions) {
             return;
@@ -659,7 +704,9 @@ class ContentExplorer extends Component<Props, State> {
      * @return {void}
      */
     uploadSuccessHandler = () => {
-        const { currentCollection: { id } }: State = this.state;
+        const {
+            currentCollection: { id }
+        }: State = this.state;
         this.fetchFolder(id, false, true);
     };
 
@@ -708,12 +755,12 @@ class ContentExplorer extends Component<Props, State> {
         if (!type) {
             return;
         }
-        const { rootFolderId, className }: Props = this.props;
+        const { rootFolderId, userEmail }: Props = this.props;
 
         this.setState({ isLoading: true });
         this.api
             .getAPI(type)
-            .rnsShare(selected, recipients, rootFolderId, className, message, (updatedItem: BoxItem) => {
+            .rnsShare(selected, recipients, rootFolderId, userEmail, message, (updatedItem: BoxItem) => {
                 this.setState({ isLoading: false });
                 this.select(updatedItem);
                 this.closeModals();
@@ -733,7 +780,7 @@ class ContentExplorer extends Component<Props, State> {
         if (!type) {
             return;
         }
-        const { rootFolderId, className }: Props = this.props;
+        const { rootFolderId }: Props = this.props;
 
         this.setState({ isLoading: true });
         this.api.getAPI(type).generateLinks(selected, rootFolderId, (updatedItem: BoxItem) => {
@@ -755,17 +802,18 @@ class ContentExplorer extends Component<Props, State> {
         if (!type) {
             return;
         }
-        const { rootFolderId, className }: Props = this.props;
+        const { rootFolderId, userEmail }: Props = this.props;
 
         this.setState({ isLoading: true });
         this.api.getAPI(type).copyOrMove(
             selected,
             destFolderId,
             rootFolderId,
-            className,
+            userEmail,
             copy,
             (updatedItem: BoxItem) => {
                 this.setState({ isLoading: false });
+                //                this.fetchFolder(currentFolderId ? currentFolderId : rootFolderId, true, true);
                 this.select(updatedItem);
                 this.closeModals();
                 this.clearCache();
@@ -785,7 +833,9 @@ class ContentExplorer extends Component<Props, State> {
      * @return {void}
      */
     sort = (sortBy: SortBy, sortDirection: SortDirection) => {
-        const { currentCollection: { id } }: State = this.state;
+        const {
+            currentCollection: { id }
+        }: State = this.state;
         if (id) {
             this.setState({ sortBy, sortDirection }, this.refreshCollection);
         }
@@ -815,7 +865,10 @@ class ContentExplorer extends Component<Props, State> {
      * @return {void}
      */
     select = (item: BoxItem, callback: Function = noop): void => {
-        const { selected, currentCollection: { items = [] } }: State = this.state;
+        const {
+            selected,
+            currentCollection: { items = [] }
+        }: State = this.state;
         const { onSelect }: Props = this.props;
 
         if (item === selected) {
@@ -897,7 +950,7 @@ class ContentExplorer extends Component<Props, State> {
      */
     downloadCallback = (): void => {
         const { selected }: State = this.state;
-        const { canDownload, onDownload }: Props = this.props;
+        const { canDownload, onDownload, token }: Props = this.props;
         if (!selected || !canDownload) {
             return;
         }
@@ -919,6 +972,34 @@ class ContentExplorer extends Component<Props, State> {
         const { type }: BoxItem = selected;
         if (type === TYPE_FILE) {
             this.api.getFileAPI().getDownloadUrl(id, openUrl, noop);
+        } else {
+            const folderUrl = this.api.getFolderAPI().getDownloadUrl(id, token);
+            openUrlInsideIframe(folderUrl);
+            onDownload(cloneDeep([selected]));
+        }
+    };
+
+    downloadVersion = (versionId: string): void => {
+        const { selected }: State = this.state;
+        const { canDownload, onDownload, token }: Props = this.props;
+        if (!selected || !canDownload) {
+            return;
+        }
+        const { id, permissions } = selected;
+        if (!id || !permissions) {
+            return;
+        }
+
+        const { can_download }: BoxItemPermission = permissions;
+        if (!can_download) {
+            return;
+        }
+
+        const { type }: BoxItem = selected;
+        if (type === TYPE_FILE) {
+            const url = this.api.getFileAPI().getVersionDownloadUrl(id, versionId, token);
+            openUrlInsideIframe(url);
+            onDownload(cloneDeep([selected]));
         }
     };
 
@@ -956,6 +1037,7 @@ class ContentExplorer extends Component<Props, State> {
         if (!can_delete || !parentId) {
             return;
         }
+        const { rootFolderId, userEmail }: Props = this.props;
 
         if (!isDeleteModalOpen) {
             this.setState({ isDeleteModalOpen: true });
@@ -963,7 +1045,7 @@ class ContentExplorer extends Component<Props, State> {
         }
 
         this.setState({ isLoading: true });
-        this.api.getAPI(type).delete(selected, () => {
+        this.api.getAPI(type).delete(selected, userEmail, rootFolderId, () => {
             onDelete(cloneDeep([selected]));
             this.refreshCollection();
         });
@@ -1180,44 +1262,47 @@ class ContentExplorer extends Component<Props, State> {
 
     /**
      * This callback will be invoked after the file is successfully uploaded
-     * 
+     *
      */
     handleUploadNewVersionSuccess = (entries): void => {
-    	const { currentFolderId, rootFolderId }: Props = this.props;
-    	var uploadedItem = entries[0];
-    	this.setState({ loading: false });
-    	this.fetchFolder(currentFolderId ? currentFolderId : rootFolderId);
-    	//this.select(uploadedItem);
-    }
-    
+        const { rootFolderId, onUpload }: Props = this.props;
+        const { id }: Collection = this.state.currentCollection;
+        const currentFolderId = id;
+        this.setState({ loading: false });
+        this.fetchFolder(currentFolderId || rootFolderId, true, true);
+        entries[0].uploadNewVersion = true;
+        onUpload(entries);
+        // this.select(uploadedItem);
+    };
+
     /**
      * This callback will be invoked after the user selects a file
      */
     handleUploadNewVersion = (event): void => {
-    	const { selected }: State = this.state;
-		var uploadFile = event.target.files[0];
+        const { selected }: State = this.state;
+        const uploadFile = event.target.files[0];
         const uploadAPI = this.api.getPlainUploadAPI();
         const { id, parent } = selected;
-        uploadAPI.upload({ 
-        	folderId: parent.id, 
-        	fileId: id, 
-        	file: uploadFile, 
-        	successCallback: (entries) => this.handleUploadNewVersionSuccess(entries)
+        uploadAPI.upload({
+            folderId: parent.id,
+            fileId: id,
+            file: uploadFile,
+            successCallback: (entries) => this.handleUploadNewVersionSuccess(entries)
         });
         this.setState({ loading: true });
-    }
-    
+    };
+
     /**
-     * Selects the clicked file and then performs the Upload New Version action 
+     * Selects the clicked file and then performs the Upload New Version action
      *
      * @private
      * @param {Object} item - file object
      * @return {void}
      */
     uploadNewVersion = (item: BoxItem): void => {
-    	this.select(item, this.uploadNewVersionCallback);
-    }
-    
+        this.select(item, this.uploadNewVersionCallback);
+    };
+
     /**
      * Opens the File Dialog and waits for the user to select a file
      *
@@ -1225,28 +1310,28 @@ class ContentExplorer extends Component<Props, State> {
      * @return {void}
      */
     uploadNewVersionCallback = (): void => {
-    	const { selected }: State = this.state;
-    	const { canUpload }: Props = this.props;
-    	
-    	if (!selected || !canUpload) {
-    		return;
-    	}
-    	
-    	const { permissions } = selected;
-    	if (!permissions) {
-    		return;
-    	}
-    	
-    	const { can_upload }: BoxItemPermissions = permissions;
-    	if (!can_upload) {
-    		return;
-    	}
-    	var input = document.createElement('input');
-    	input.type = 'file';
-    	input.onchange = this.handleUploadNewVersion;
-    	input.click();
-    }
-    
+        const { selected }: State = this.state;
+        const { canUpload }: Props = this.props;
+
+        if (!selected || !canUpload) {
+            return;
+        }
+
+        const { permissions } = selected;
+        if (!permissions) {
+            return;
+        }
+
+        const { can_upload }: BoxItemPermissions = permissions;
+        if (!can_upload) {
+            return;
+        }
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = this.handleUploadNewVersion;
+        input.click();
+    };
+
     /**
      * Saves reference to table component
      *
@@ -1278,7 +1363,10 @@ class ContentExplorer extends Component<Props, State> {
             isPreviewModalOpen: false
         });
 
-        const { selected, currentCollection: { items = [] } }: State = this.state;
+        const {
+            selected,
+            currentCollection: { items = [] }
+        }: State = this.state;
         if (selected && items.length > 0) {
             focus(this.rootElement, `.bce-item-row-${focusedRow}`);
         }
@@ -1381,12 +1469,14 @@ class ContentExplorer extends Component<Props, State> {
             isMedium,
             isTouch,
             className,
+            userEmail,
             measureRef,
             onPreview,
             onUpload,
             hasPreviewSidebar,
             onInteraction,
-            onSearchDestFolders,
+            // onSearchDestFolders,
+            moveCopySharedFolders,
             requestInterceptor,
             responseInterceptor
         }: Props = this.props;
@@ -1468,6 +1558,7 @@ class ContentExplorer extends Component<Props, State> {
                             onItemShare={this.share}
                             onItemMoveOrCopy={this.moveOrCopy}
                             onItemUploadNewVersion={this.uploadNewVersion}
+                            onItemDownloadVersion={this.downloadVersion}
                             onItemPreview={this.preview}
                             onSortChange={this.sort}
                         />
@@ -1483,6 +1574,12 @@ class ContentExplorer extends Component<Props, State> {
                             uploadHost={uploadHost}
                             onClose={this.uploadSuccessHandler}
                             parentElement={this.rootElement}
+                            view={view}
+                            rootId={rootFolderId}
+                            isSmall={isSmall}
+                            rootName={rootName}
+                            currentCollection={currentCollection}
+                            onItemClick={this.fetchFolder}
                             appElement={this.appElement}
                             onUpload={onUpload}
                             requestInterceptor={requestInterceptor}
@@ -1544,7 +1641,8 @@ class ContentExplorer extends Component<Props, State> {
                             token={token}
                             isOpen={isMoveCopyModalOpen}
                             onMoveOrCopy={this.copyOrMove}
-                            onSearchDestFolders={onSearchDestFolders}
+                            // onSearchDestFolders={onSearchDestFolders}
+                            moveCopySharedFolders={moveCopySharedFolders}
                             onCancel={this.refreshCollection}
                             item={selected}
                             isLoading={isLoading}

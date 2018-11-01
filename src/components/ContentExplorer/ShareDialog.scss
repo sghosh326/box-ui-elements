@@ -27,7 +27,7 @@
         height: 34px;
         letter-spacing: 1px;
         line-height: 34px;
-        margin: 0 0 0 -5px;
+        margin: 0 0 0 0px;
         padding: 0 10px;
         text-transform: uppercase;
     }
@@ -35,5 +35,9 @@
     .be-modal-btns {
         align-items: center;
         justify-content: space-between;
+    }
+    
+    .be-modal-share-dialog-content {
+    	width: 500px !important;
     }
 }

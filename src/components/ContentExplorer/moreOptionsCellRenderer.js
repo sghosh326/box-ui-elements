@@ -52,7 +52,7 @@ export default (
     const onMoveOrCopy = () => onItemMoveOrCopy(rowData);
     const onPreview = () => onItemPreview(rowData);
     const onUploadNewVersion = () => onItemUploadNewVersion(rowData);
-    
+
     const { permissions, type } = rowData;
 
     if (!permissions) {
@@ -65,11 +65,11 @@ export default (
     const allowShare = canShare && permissions[PERMISSION_CAN_SHARE];
     const allowMoveCopy = canMoveOrCopy && permissions[PERMISSION_CAN_SHARE];
     const allowRename = canRename && permissions[PERMISSION_CAN_RENAME];
-    const allowDownload =
-        canDownload && permissions[PERMISSION_CAN_DOWNLOAD] && type === TYPE_FILE && !Browser.isMobile();
-    const allowUploadNewVersion = 
-    	canUpload && permissions[PERMISSION_CAN_UPLOAD] && type === TYPE_FILE && !Browser.isMobile();
-    const allowed = allowDelete || allowRename || allowDownload || allowPreview || allowShare || allowOpen || allowUploadNewVersion;
+    const allowDownload = canDownload && permissions[PERMISSION_CAN_DOWNLOAD] && !Browser.isMobile();
+    const allowUploadNewVersion =
+        canUpload && permissions[PERMISSION_CAN_UPLOAD] && type === TYPE_FILE && !Browser.isMobile();
+    const allowed =
+        allowDelete || allowRename || allowDownload || allowPreview || allowShare || allowOpen || allowUploadNewVersion;
 
     if (!allowed) {
         return <span />;

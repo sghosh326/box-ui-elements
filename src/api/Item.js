@@ -108,6 +108,17 @@ class Item extends Base {
     }
 
     /**
+     * Delete URL for items
+     *
+     * @param {string} id - Item id
+     * @protected
+     * @return {string} Base url for files
+     */
+    getDeleteUrl(id: string): string {
+        return `getDeleteUrl(${id}) should be overriden`;
+    }
+
+    /**
      * Generate Links for items
      *
      * @param {string} id - Item id
@@ -210,7 +221,13 @@ class Item extends Base {
      * @param {Boolean} recursive - True for folders
      * @return {void}
      */
-    delete(item: BoxItem, successCallback: Function, errorCallback: Function = noop): Promise<void> {
+    delete(
+        item: BoxItem,
+        email: string,
+        sharedFolderId: string,
+        successCallback: Function,
+        errorCallback: Function = noop
+    ): Promise<void> {
         if (this.isDestroyed()) {
             return Promise.reject();
         }
@@ -233,7 +250,8 @@ class Item extends Base {
         this.successCallback = successCallback;
         this.errorCallback = errorCallback;
 
-        const url = `${this.getUrl(id)}${type === TYPE_FOLDER ? '?recursive=true' : ''}`;
+        // const url = `${this.getUrl(id)}${type === TYPE_FOLDER ? '?recursive=true' : ''}`;
+        const url = `${this.getDeleteUrl(id)}?email=${email}&folderId=${sharedFolderId}`;
         return this.xhr
             .delete({ url })
             .then(this.deleteSuccessHandler)

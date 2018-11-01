@@ -44,6 +44,7 @@ type Props = {
     onItemShare: Function,
     onItemMoveOrCopy: Function,
     onItemUploadNewVersion: Function,
+    onItemDownloadVersion: Function,
     onItemPreview: Function,
     onSortChange: Function,
     isSmall: boolean,
@@ -78,6 +79,7 @@ const Content = ({
     onItemShare,
     onItemMoveOrCopy,
     onItemUploadNewVersion,
+    onItemDownloadVersion,
     onItemPreview,
     onSortChange
 }: Props) => (
@@ -113,6 +115,7 @@ const Content = ({
                 onItemShare={onItemShare}
                 onItemMoveOrCopy={onItemMoveOrCopy}
                 onItemUploadNewVersion={onItemUploadNewVersion}
+                onItemDownloadVersion={onItemDownloadVersion}
                 onItemPreview={onItemPreview}
                 onSortChange={onSortChange}
             />
